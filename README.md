@@ -1,3 +1,6 @@
+생성된 QR은 아래주소로 접속해서 확인할 수 있습니다.
+https://www.onlinebarcodereader.com/
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
