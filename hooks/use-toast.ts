@@ -172,6 +172,7 @@ function toast({ ...props }: Toast) {
 }
 
 function useToast() {
+  console.log('useToast호출')
   const [state, setState] = React.useState<State>(memoryState)
 
   React.useEffect(() => {

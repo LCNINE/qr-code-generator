@@ -15,7 +15,7 @@ const qrInputSchema = z.object({
   qrName: z
     .string()
     .min(1, "QR 코드 이름을 입력하세요.")
-    .max(250, "QR 코드 이름은 최대 250자까지 가능합니다."),
+    .max(30, "QR 코드 이름은 최대 30자까지 가능합니다."),
   url: z.string().min(1, "URL을 입력하세요.").url("유효한 URL을 입력하세요."),
 });
 

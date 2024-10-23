@@ -1,3 +1,4 @@
+import { Toaster } from "sonner";
 import { AuthProvider } from "./customLayOut/AuthContext";
 import "./globals.css";
 
@@ -17,6 +18,8 @@ export default function RootLayout({
         <AuthProvider>
           {children}
         </AuthProvider>
+        
+        <Toaster />
       </body>
     </html>
   )
