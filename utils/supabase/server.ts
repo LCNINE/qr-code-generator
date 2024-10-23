@@ -17,14 +17,14 @@ export const createClient = async () => {
           try {
             cookieStore.set({ name, value, ...options })
           } catch (error) {
-            console.error('쿠키 설정 중 오류 발생:', error)
+            console.error('Error setting cookie:', error)
           }
         },
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: '', ...options })
           } catch (error) {
-            console.error('쿠키 삭제 중 오류 발생:', error)
+            console.error('Error deleting cookie:', error)
           }
         }
       }

@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { signInSchema, SignInSchema } from './schema'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { createClient } from '@/utils/supabase/client'
 import { Spinner } from '@/components/custom/spinner'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/custom/UnderlinedInput'
@@ -14,12 +13,15 @@ import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { Separator } from '@radix-ui/react-context-menu'
 import { toast } from 'sonner'
+import MemberService from '@/service/member/memberService'
 
 type SignInFormProps = {
   toastMessage?: string
 }
 
 export default function SignInForm({ toastMessage }: SignInFormProps) {
+  const memberService = new MemberService();
+
   const methods = useForm<SignInSchema>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -36,7 +38,6 @@ export default function SignInForm({ toastMessage }: SignInFormProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
-  const supabase = createClient() // 클라이언트 인스턴스 생성
 
   // toastMessage 또는 쿼리 파라미터의 오류 메시지 처리
   useEffect(() => {
@@ -58,7 +59,7 @@ export default function SignInForm({ toastMessage }: SignInFormProps) {
     const { email, password } = data
 
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+      const signInError = await memberService.signInUser({ email, password });
 
       if (signInError) {
         const errorMessage = getErrorMessage(signInError.status ?? 400, signInError.message)
