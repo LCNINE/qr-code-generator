@@ -1,4 +1,3 @@
-import { User } from "@supabase/supabase-js";
 import Service from "../service";
 
 type InsertQRProb = {
@@ -45,12 +44,12 @@ class QRService extends Service {
     }
   }
 
-  async fetchQR(user: User) {
+  async fetchQR(user_id: string) {
     const supabase = await this.supabase;
     const { data, error } = await supabase
       .from("qr_codes")
       .select("*")
-      .eq("user_id", user?.id);
+      .eq("user_id", user_id);
 
     if (error) {
       console.error("Error fetching QR codes:", error.message);
