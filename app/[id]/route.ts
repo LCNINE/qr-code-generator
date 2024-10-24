@@ -4,8 +4,6 @@ import { supabase } from '@/lib/supabaseClient';
 export async function GET(request: Request, context: { params: { id: string } }) {
   const { id } = await context.params;
 
-  console.log('id : ', id);
-
   // Supabase에서 해당 id에 맞는 데이터를 가져옴
   const { data, error } = await supabase
     .from('qr_codes')
@@ -18,7 +16,6 @@ export async function GET(request: Request, context: { params: { id: string } })
   }
 
   const originalUrl = data.original_id;
-  console.log('originalUrl : ', originalUrl);
 
   // 리다이렉트
   return NextResponse.redirect(originalUrl);

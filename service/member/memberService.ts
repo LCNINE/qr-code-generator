@@ -42,7 +42,7 @@ class MemberService extends Service {
     });
     if(error) {
       return error
-    }else return data
+    }else return null
   }
 }
 

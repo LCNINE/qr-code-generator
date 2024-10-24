@@ -5,10 +5,9 @@ import { nanoid } from "nanoid";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
-import Header from "./customLayOut/Header";
-import { useAuth } from "./customLayOut/AuthContext";
 import QRService from "@/service/qr/qrService";
 import QRCodeStyling from "qr-code-styling";
+import { Tables } from "@/type/supabaseType";
 
 // Zod 스키마 정의
 const qrInputSchema = z.object({
@@ -19,14 +18,17 @@ const qrInputSchema = z.object({
   url: z.string().min(1, "URL을 입력하세요.").url("유효한 URL을 입력하세요."),
 });
 
-export default function GenerateQR() {
+interface GenerateQRProps {
+  user: Tables<"members"> | null;
+}
+
+export default function GenerateQR({ user }: GenerateQRProps) {
   const qrService = new QRService();
 
   const [qrName, setQrName] = useState<string>(""); // 사용자 입력 QR 이름
   const [url, setUrl] = useState<string>(""); // 사용자 입력 URL
   const [qrData, setQrData] = useState<string | null>(null); // QR에 사용할 경로
   const [error, setError] = useState<string | null>(null); // 오류 메시지 상태
-  const { user } = useAuth();
   const qrCodeRef = useRef<HTMLDivElement>(null);
 
   // QRCodeStyling 인스턴스 생성
@@ -80,7 +82,12 @@ export default function GenerateQR() {
     const id = nanoid(6); // 6글자의 고유한 ID 생성
 
     try {
-      const qrUrl = await qrService.insertQR({ id, qrName, original_id: url, user_id: user.id });
+      const qrUrl = await qrService.insertQR({
+        id,
+        qrName,
+        original_id: url,
+        user_id: user.id,
+      });
       if (qrUrl) {
         setQrData(qrUrl); // QR 코드가 가리킬 경로
       }
@@ -95,8 +102,6 @@ export default function GenerateQR() {
 
   return (
     <div className="h-full">
-      <Header />
-
       <div className="w-full flex">
         <form className="w-full mt-16 mx-10" onSubmit={handleGenerateQR}>
           <Input

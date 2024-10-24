@@ -18,7 +18,6 @@ export const getCurrentUser = async (): Promise<Tables<'members'> | null> => {
   if (userError) {
     redirect('/u/sign-in')
   }
-
   return userData
 }
 
@@ -26,7 +25,6 @@ export const requireAuth = async (): Promise<{
   user: Tables<'members'>
 }> => {
   const currentUser = await getCurrentUser()
-  console.log('currentUser : '+currentUser)
   if (currentUser == null) {
     const headerList = headers()
     redirect(

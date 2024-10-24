@@ -36,15 +36,14 @@ export async function updateSession(request: NextRequest) {
   if (
     !user &&
     !request.nextUrl.pathname.startsWith("/u/signin") &&
-    request.nextUrl.pathname.startsWith("/[id]/route")
+    request.nextUrl.pathname.startsWith("/[id]/route")&&
+    request.nextUrl.pathname !== "/"
   ) {
     // 로그인 후 리다이렉트할 원래 경로를 저장합니다.
     const url = request.nextUrl.clone();
     url.pathname = "/u/signin";
     url.searchParams.set("next", request.nextUrl.pathname); // 사용자가 가려고 했던 경로 저장
-    console.log('return NextResponse.redirect(url);')
     return NextResponse.redirect(url);
   }
-  console.log('supabaseResponse : ', supabaseResponse)
   return supabaseResponse;
 }

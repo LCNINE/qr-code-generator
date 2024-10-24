@@ -24,7 +24,7 @@ interface QRCodeData {
 class QRService extends Service {
   async insertQR(insertData: InsertQRProb) {
     const supabase = await this.supabase;
-    const { data, error } = await supabase.from("qr_codes").insert([
+    const { error } = await supabase.from("qr_codes").insert([
       {
         id: insertData.id,
         name: insertData.qrName,
@@ -34,8 +34,7 @@ class QRService extends Service {
     ]);
 
     if (!error) {
-      console.log(data);
-      const qrUrl = `${window.location.origin}/${insertData.id}`;
+      const qrUrl = `http://localhost:3000/${insertData.id}`;
       alert("QR 코드가 저장되었습니다.");
       return qrUrl;
     } else {
@@ -57,7 +56,7 @@ class QRService extends Service {
     } else {
       const qrCodesWithUrl = data.map((qrCode: QRCodeData) => ({
         ...qrCode,
-        qrUrl: `${window.location.origin}/${qrCode.id}`,
+        qrUrl: `http://localhost:3000/${qrCode.id}`,
       }));
       return qrCodesWithUrl;
     }
