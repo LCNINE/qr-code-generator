@@ -1,12 +1,12 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/app/customLayOut/AuthContext";
 import QRCode from "react-qr-code";
 import QRService from "@/service/qr/qrService";
 import { useState } from "react"; 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { QR_QUERY } from "@/service/qr/queries";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQrs } from "@/service/qr/useQrs";
+import { Spinner } from "@/components/custom/spinner";
 
 interface QRCodeData {
   id: string;
@@ -15,8 +15,7 @@ interface QRCodeData {
   qrUrl: string;
 }
 
-export default function ModifyQR() {
-  const { user } = useAuth();
+export default function ModifyQR({ memberId }: { memberId: string }) {
   const [selectedQR, setSelectedQR] = useState<QRCodeData | null>(null);
   const [newName, setNewName] = useState<string>("");
   const [newUrl, setNewUrl] = useState<string>("");
@@ -24,14 +23,9 @@ export default function ModifyQR() {
   const qrService = new QRService();
   const queryClient = useQueryClient();
 
-  // Fetch QR Codes using react-query
-  const { data: qrCodes = [], isLoading } = useQuery(
-    {
-      queryKey: [QR_QUERY.QRCODES, user?.id],
-      queryFn: () => qrService.fetchQR(user!),
-      enabled: !!user
-    }
-  );
+  // useQrs 훅에서 데이터를 가져옴
+  const { data: qrCodes, isLoading, isError } = useQrs(memberId);
+
 
   // QR 코드 업데이트를 위한 react-query 사용
   const updateQRMutation = useMutation({
@@ -39,14 +33,13 @@ export default function ModifyQR() {
       qrService.updateQR({ newName, newUrl, selectedQRId }),
     onSuccess: () => {
       alert("QR 코드가 수정되었습니다.");
-      queryClient.invalidateQueries({ queryKey: [QR_QUERY.QRCODES, user?.id] }); // QR 코드 새로고침을 위해 쿼리 무효화
-        setSelectedQR(null); // Reset selected QR
-      },
-      onError: (error: Error) => {
-        console.error("Error updating QR code:", error.message);
-      },
-    }
-  );
+      queryClient.invalidateQueries({ queryKey: ['qrCodes', memberId] }); // QR 코드 새로고침을 위해 쿼리 무효화
+      setSelectedQR(null); // Reset selected QR
+    },
+    onError: (error: Error) => {
+      console.error("Error updating QR code:", error.message);
+    },
+  });
 
   const handleEdit = (qrCode: QRCodeData) => {
     setSelectedQR(qrCode);
@@ -83,12 +76,16 @@ export default function ModifyQR() {
     }
   };
 
+  // 로딩 중일 때 Spinner 표시
+  if (isLoading) return <Spinner />;
+
+  // 오류가 발생했을 때 오류 메시지 표시
+  if (isError) return <p>데이터를 불러오는 중 오류가 발생했습니다.</p>;
+
   return (
     <div className="h-full">
       <h1 className="text-2xl font-bold mb-4">내 QR 코드</h1>
-      {isLoading ? (
-        <p>로딩 중...</p>
-      ) : qrCodes?.length === 0 ? (
+      {qrCodes?.length === 0 ? (
         <p>생성된 QR 코드가 없습니다.</p>
       ) : (
         <ul>

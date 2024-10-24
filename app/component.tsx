@@ -37,13 +37,13 @@ export default function GenerateQR() {
       data: "",
       dotsOptions: {
         color: "#000000",
-        type: "rounded",
+        type: "square",
       },
       backgroundOptions: {
         color: "#ffffff",
       },
       qrOptions: {
-        errorCorrectionLevel: "H",
+        errorCorrectionLevel: "L",
       },
     })
   ).current;

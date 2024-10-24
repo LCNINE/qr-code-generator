@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
 
         if (event === "SIGNED_OUT") {
-          router.push("/sign-in"); // 로그아웃 시 로그인 페이지로 이동
+          router.push("u/signin"); // 로그아웃 시 로그인 페이지로 이동
         }
       }
     );

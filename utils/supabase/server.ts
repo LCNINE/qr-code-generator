@@ -2,8 +2,8 @@ import { Database } from '@/type/supabaseType'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-export const createClient = async () => {
-  const cookieStore = await cookies() // await를 사용하여 Promise 해결
+export const createClient = () => {
+  const cookieStore = cookies()
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,14 +17,14 @@ export const createClient = async () => {
           try {
             cookieStore.set({ name, value, ...options })
           } catch (error) {
-            console.error('Error setting cookie:', error)
+            console.log(error)
           }
         },
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: '', ...options })
           } catch (error) {
-            console.error('Error deleting cookie:', error)
+            console.log(error)
           }
         }
       }

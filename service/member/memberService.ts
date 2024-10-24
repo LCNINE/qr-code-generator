@@ -36,11 +36,13 @@ class MemberService extends Service {
 
   async signInUser({ email, password }: SignInProb) {
     const supabase = await this.supabase;
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    return error;
+    if(error) {
+      return error
+    }else return data
   }
 }
 
