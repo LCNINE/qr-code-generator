@@ -34,7 +34,7 @@ class QRService extends Service {
     ]);
 
     if (!error) {
-      const qrUrl = `http://localhost:3000/${insertData.id}`;
+      const qrUrl = `ald.my/${insertData.id}`;
       alert("QR 코드가 저장되었습니다.");
       return qrUrl;
     } else {
@@ -56,7 +56,7 @@ class QRService extends Service {
     } else {
       const qrCodesWithUrl = data.map((qrCode: QRCodeData) => ({
         ...qrCode,
-        qrUrl: `http://localhost:3000/${qrCode.id}`,
+        qrUrl: `ald.my/${qrCode.id}`,
       }));
       return qrCodesWithUrl;
     }
