@@ -132,7 +132,7 @@ export default function SignInForm({ toastMessage }: SignInFormProps) {
           </Button>
 
           {/* <div className="text-center mt-4">
-            <Link href="" className={cn('w-full', buttonVariants({ variant: 'link' }))}>
+            <Link href="/auth/recovery" className={cn('w-full', buttonVariants({ variant: 'link' }))}>
               비밀번호를 잊으셨나요?
             </Link>
           </div> */}

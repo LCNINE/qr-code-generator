@@ -34,7 +34,7 @@ export default function Header({ user: initialUser }: HeaderProps) {
   return (
     <header className="flex items-center justify-between w-full p-4 bg-gray-100">
       <div className="flex items-center">
-        <Link href="/">동적QR</Link>
+        <Link href="/">아몬드QR</Link>
       </div>
       <div className="flex space-x-4 mr-4">
         {user ? (

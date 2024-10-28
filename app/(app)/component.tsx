@@ -108,14 +108,14 @@ export default function GenerateQR({ user }: GenerateQRProps) {
             type="text"
             value={qrName}
             onChange={(e) => setQrName(e.target.value)}
-            placeholder="Name your QR code (Maximum number of characters: 250)"
+            placeholder="QR코드 이름을 입력하세요."
             className="mb-4 w-full border border-gray-300 rounded p-2"
           />
           <Input
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="Put your link here"
+            placeholder="연결 할 링크 입력하세요."
             className="mb-4 w-full border border-gray-300 rounded p-2"
           />
           {error && <p className="text-red-500 mb-4">{error}</p>}

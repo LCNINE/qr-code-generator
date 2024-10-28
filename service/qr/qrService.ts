@@ -13,6 +13,10 @@ type UpdateQRProb = {
   selectedQRId: string;
 };
 
+type DeleteQRProb = {
+  selectedQRId: string;
+};
+
 interface QRCodeData {
   id: string;
   name: string;
@@ -71,6 +75,21 @@ class QRService extends Service {
 
     if (error) {
       console.error("Error updating QR code:", error.message);
+      return error;
+    } else {
+      return null;
+    }
+  }
+
+  async deleteQR(deleteData: DeleteQRProb) {
+    const supabase = await this.supabase;
+    const { error } = await supabase
+      .from("qr_codes")
+      .delete()
+      .eq("id", deleteData.selectedQRId)
+
+    if (error) {
+      console.error("Error deleting QR code:", error.message);
       return error;
     } else {
       return null;

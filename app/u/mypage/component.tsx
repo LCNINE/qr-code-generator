@@ -3,9 +3,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import QRCode from "react-qr-code";
 import { useState } from "react";
-import {  useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useQrs, useUpdateQr } from "@/service/qr/useQrs";
 import { Spinner } from "@/components/custom/spinner";
+import QRService from "@/service/qr/qrService";
 
 interface QRCodeData {
   id: string;
@@ -19,11 +20,11 @@ export default function ModifyQR({ memberId }: { memberId: string }) {
   const [newName, setNewName] = useState<string>("");
   const [newUrl, setNewUrl] = useState<string>("");
   const queryClient = useQueryClient();
+  const qrService = new QRService();
 
   // useQrs 훅에서 데이터를 가져옴
   const { data: qrCodes, isLoading, isError } = useQrs(memberId);
-  const updateQRMutation = useUpdateQr()
-  
+  const updateQRMutation = useUpdateQr();
 
   const handleEdit = (qrCode: QRCodeData) => {
     setSelectedQR(qrCode);
@@ -33,22 +34,20 @@ export default function ModifyQR({ memberId }: { memberId: string }) {
 
   const handleSaveChanges = () => {
     if (!selectedQR) return;
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     updateQRMutation.mutate(
       { newName, newUrl, selectedQRId: selectedQR.id },
       {
         onSuccess: () => {
           alert("QR 코드가 수정되었습니다.");
           queryClient.invalidateQueries({ queryKey: ["qrCodes", memberId] }); // QR 코드 새로고침을 위해 쿼리 무효화
-          setSelectedQR(null); // Reset selected QR
+          setSelectedQR(null); // 선택된 QR 초기화
+          window.location.reload(); // QR 코드 삭제 후 페이지 새로고침
         },
-        onError: error => {
-          console.error("Error updating QR code:", error.message);
+        onError: (error) => {
+          console.error("QR 코드 수정 중 오류 발생:", error.message);
         },
-        onSettled: () => {
-        }
       }
-    )
+    );
   };
 
   const downloadQRCode = (qrCode: QRCodeData) => {
@@ -75,6 +74,23 @@ export default function ModifyQR({ memberId }: { memberId: string }) {
     }
   };
 
+  const deleteQRCode = async (qrCode: QRCodeData) => {
+    const deleteCon = confirm('정말 삭제하시겠습니까?');
+    if (deleteCon) {
+      const deleteResult = await qrService.deleteQR({ selectedQRId: qrCode.id });
+      if (deleteResult != null) {
+        console.error("Failed to delete QR code.");
+      } else {
+        console.log("QR code deleted successfully.");
+        queryClient.invalidateQueries({ queryKey: ["qrCodes", memberId] }); // QR 코드 새로고침을 위해 쿼리 무효화
+        setSelectedQR(null); // 선택된 QR 초기화
+        window.location.reload(); // QR 코드 삭제 후 페이지 새로고침
+      }
+    } else {
+      return;
+    }
+  };
+
   // 로딩 중일 때 Spinner 표시
   if (isLoading) return <Spinner />;
 
@@ -83,66 +99,86 @@ export default function ModifyQR({ memberId }: { memberId: string }) {
 
   return (
     <div className="h-full">
-      <div className="h-full">
-        <h1 className="text-2xl font-bold mb-4">내 QR 코드</h1>
+      <div className="text-3xl w-full border-2 p-2 bg-blue-500 text-white">
+        QR 목록
+      </div>
+      <div className="flex justify-around mt-4">
         {Array.isArray(qrCodes) && qrCodes.length === 0 ? (
           <p>생성된 QR 코드가 없습니다.</p>
         ) : Array.isArray(qrCodes) ? (
-          <ul>
-            {qrCodes.map((qrCode: QRCodeData) => (
-              <li key={qrCode.id} className="mb-4">
-                <p>이름: {qrCode.name}</p>
-                <p>URL: {qrCode.original_id}</p>
+          qrCodes.map((qrCode: QRCodeData) => (
+            <div
+              key={qrCode.id}
+              className="w-[45%] min-w-[40%] mb-4 p-4 border border-gray-200 rounded-lg shadow-md inline-block"
+            >
+              <div className="flex items-start">
                 <QRCode
                   id={`qr-code-${qrCode.id}`}
                   value={qrCode.qrUrl}
                   className="mb-2"
                 />
-                <Button
-                  onClick={() => handleEdit(qrCode)}
-                  className="bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-                >
-                  수정
-                </Button>
-                <Button
-                  onClick={() => downloadQRCode(qrCode)}
-                  className="bg-yellow-500 text-white py-2 rounded hover:bg-yellow-600 ml-2"
-                >
-                  다운로드
-                </Button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>데이터를 불러오는 중 오류가 발생했습니다.</p>
-        )}
+                <div className="ml-4 flex-1">
+                  <div>
+                    <p>이름:</p>
+                    <Input
+                      type="text"
+                      value={
+                        selectedQR?.id === qrCode.id ? newName : qrCode.name
+                      }
+                      onChange={(e) => setNewName(e.target.value)}
+                      disabled={selectedQR?.id !== qrCode.id}
+                      className="mb-2 w-full border border-gray-300 rounded p-2"
+                    />
+                    <p>URL:</p>
+                    <Input
+                      type="text"
+                      value={
+                        selectedQR?.id === qrCode.id
+                          ? newUrl
+                          : qrCode.original_id
+                      }
+                      onChange={(e) => setNewUrl(e.target.value)}
+                      disabled={selectedQR?.id !== qrCode.id}
+                      className="mb-2 w-full border border-gray-300 rounded p-2"
+                    />
+                  </div>
+                  <div className="flex space-x-2">
+                    {selectedQR?.id === qrCode.id ? (
+                      <Button
+                        onClick={handleSaveChanges}
+                        className="bg-green-500 text-white py-2 rounded hover:bg-green-600"
+                      >
+                        저장
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          onClick={() => handleEdit(qrCode)}
+                          className="bg-blue-500 text-white py-1 px-4 rounded hover:bg-blue-600"
+                        >
+                          수정
+                        </Button>
+                        <Button
+                          onClick={() => downloadQRCode(qrCode)}
+                          className="bg-yellow-500 text-white py-1 px-4 rounded hover:bg-yellow-600"
+                        >
+                          다운로드
+                        </Button>
+                        <Button
+                          onClick={() => deleteQRCode(qrCode)}
+                          className="bg-red-500 text-white py-1 px-4 rounded hover:bg-red-600"
+                        >
+                          삭제
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : null}
       </div>
-
-      {selectedQR && (
-        <div className="mt-8">
-          <h2 className="text-xl font-bold mb-4">QR 코드 수정</h2>
-          <Input
-            type="text"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            placeholder="QR 코드 이름"
-            className="mb-4 w-full border border-gray-300 rounded p-2"
-          />
-          <Input
-            type="text"
-            value={newUrl}
-            onChange={(e) => setNewUrl(e.target.value)}
-            placeholder="QR 코드 URL"
-            className="mb-4 w-full border border-gray-300 rounded p-2"
-          />
-          <Button
-            onClick={handleSaveChanges}
-            className="bg-green-500 text-white py-2 rounded hover:bg-green-600"
-          >
-            저장
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
