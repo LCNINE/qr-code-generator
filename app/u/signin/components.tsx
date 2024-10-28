@@ -131,18 +131,18 @@ export default function SignInForm({ toastMessage }: SignInFormProps) {
             {loading ? <Spinner /> : '로그인'}
           </Button>
 
-          <div className="text-center mt-4">
-            <Link href="/auth/recovery" className={cn('w-full', buttonVariants({ variant: 'link' }))}>
+          {/* <div className="text-center mt-4">
+            <Link href="" className={cn('w-full', buttonVariants({ variant: 'link' }))}>
               비밀번호를 잊으셨나요?
             </Link>
-          </div>
+          </div> */}
 
           <div className="mt-4 text-center">
             <Separator />
             <p className="text-xs text-muted-foreground">아직 회원이 아니신가요?</p>
             <Separator className="flex-1" />
 
-            <Link href="/auth/sign-up" className={cn('w-full', buttonVariants({ variant: 'link' }))}>
+            <Link href="/u/signup" className={cn('w-full', buttonVariants({ variant: 'link' }))}>
               회원가입
             </Link>
           </div>
