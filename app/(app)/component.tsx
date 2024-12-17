@@ -5,9 +5,12 @@ import { nanoid } from "nanoid";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
-import QRService from "@/service/qr/qrService";
 import QRCodeStyling from "qr-code-styling";
 import { Tables } from "@/type/supabaseType";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { qrKeys, qrMutationOptions } from "@/service/qr/queries";
+import { createClient } from "@/utils/supabase/client";
+import { toast } from "sonner";
 
 // Zod 스키마 정의
 const qrInputSchema = z.object({
@@ -23,13 +26,32 @@ interface GenerateQRProps {
 }
 
 export default function GenerateQR({ user }: GenerateQRProps) {
-  const qrService = new QRService();
+  // const qrService = new QRService();
 
   const [qrName, setQrName] = useState<string>(""); // 사용자 입력 QR 이름
   const [url, setUrl] = useState<string>(""); // 사용자 입력 URL
   const [qrData, setQrData] = useState<string | null>(null); // QR에 사용할 경로
   const [error, setError] = useState<string | null>(null); // 오류 메시지 상태
   const qrCodeRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
+
+  const supabase = createClient();
+
+  const insertQrMutation = useMutation({
+    ...qrMutationOptions(supabase).insertQR(),
+    onSuccess: (qrUrl) => {
+      toast.success("qr코드가 생성되었습니다.");
+      setQrData(qrUrl);
+    },
+    onError: (error) => {
+      console.error("qr생성 중 오류 발생:", error);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: qrKeys.qrCodes(),
+      });
+    },
+  });
 
   // QRCodeStyling 인스턴스 생성
   const qrCode = useRef(
@@ -82,15 +104,13 @@ export default function GenerateQR({ user }: GenerateQRProps) {
     const id = nanoid(6); // 6글자의 고유한 ID 생성
 
     try {
-      const qrUrl = await qrService.insertQR({
+      // const qrUrl = await qrService.insertQR();
+      insertQrMutation.mutate({
         id,
         qrName,
         original_id: url,
         user_id: user.id,
       });
-      if (qrUrl) {
-        setQrData(qrUrl); // QR 코드가 가리킬 경로
-      }
     } catch (err) {
       console.error(err);
     }

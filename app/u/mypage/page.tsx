@@ -1,13 +1,13 @@
 import { qrQueryOptions } from "@/service/qr/queries";
 import ModifyQR from "./component";
 import { getDehydratedQuery, Hydrate } from "@/utils/react-query";
-import { requireAuth } from "@/utils/supabase/auth";
+import { createClient } from "@/utils/supabase/server";
 
 export default async function MyPage() {
-  const { user } = await requireAuth();
-  const memberId = user.id;
+
+  const supabase = createClient()
   // transactionQueryOptions에 startDate와 endDate 전달
-  const { queryKey, queryFn } = qrQueryOptions.qrCodes(memberId);
+  const { queryKey, queryFn } = qrQueryOptions(supabase).qrCodes();
 
   const query = await getDehydratedQuery({
     queryKey,
@@ -21,7 +21,7 @@ export default async function MyPage() {
 
   return (
     <Hydrate state={{ queries: [query] }}>
-      <ModifyQR memberId={memberId} />
+      <ModifyQR/>
     </Hydrate>
   );
 }

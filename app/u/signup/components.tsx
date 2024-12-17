@@ -21,6 +21,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { SignUpSchema } from "./schema";
 import MemberService from "@/service/member/memberService";
+import { createClient } from "@/utils/supabase/client";
 
 // 이메일과 비밀번호만을 위한 스키마
 const EmailPasswordSchema = SignUpSchema.pick({
@@ -32,7 +33,8 @@ const EmailPasswordSchema = SignUpSchema.pick({
 type SignUpFormData = z.infer<typeof EmailPasswordSchema>;
 
 export default function SignUpForm() {
-  const memberService = new MemberService();
+  const supabse = createClient()
+  const memberService = new MemberService(supabse);
 
   const [loading, setLoading] = useState(false);
   const router = useRouter();
