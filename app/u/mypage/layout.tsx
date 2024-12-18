@@ -1,4 +1,6 @@
 import { ReactNode } from "react";
+import { requireAuth } from "@/utils/supabase/auth";
+import Header from "@/app/(app)/Header";
 
 export const metadata = {
   title: "아몬드QR 마이페이지",
@@ -9,12 +11,12 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-export default function RootLayout({ children }: LayoutProps) {
+export default async function MyPageLayout({ children }: LayoutProps) {
+  const user = await requireAuth();
   return (
-    <html lang="en">
-      <body>
-        {children}
-      </body>
-    </html>
-  )
+    <div>
+      <Header user={user.user} />
+      <main>{children}</main>
+    </div>
+  );
 }

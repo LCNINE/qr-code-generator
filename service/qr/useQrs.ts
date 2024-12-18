@@ -1,15 +1,12 @@
-'use client'
+"use client";
 
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { qrQueryOptions } from './queries'
+import { useQuery } from "@tanstack/react-query";
+import { qrQueryOptions } from "./queries";
+import { createClient } from "@/utils/supabase/client";
 
-export const useQrs = (memberId: string) => {
-  return useQuery(qrQueryOptions.qrCodes(memberId))
-}
-
-export const useUpdateQr = () => {
-
-  return useMutation({
-    ...qrQueryOptions.updateQR()
-  })
-}
+export const useQrs = () => {
+  const supabase = createClient();
+  return useQuery({
+    ...qrQueryOptions(supabase).qrCodes(),
+  });
+};
