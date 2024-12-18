@@ -30,6 +30,7 @@ interface QRCardProps {
   onUrlChange: (value: string) => void;
   onEdit: () => void;
   onSave: () => void;
+  onCancel: () => void;
   onDownload: () => void;
   onDelete: () => void;
 }
@@ -61,24 +62,35 @@ const EditableField = ({
 const ActionButtons = ({
   isEditing,
   onSave,
+  onCancel,
   onEdit,
   onDownload,
   onDelete,
 }: {
   isEditing: boolean;
   onSave: () => void;
+  onCancel: () => void;
   onEdit: () => void;
   onDownload: () => void;
   onDelete: () => void;
 }) => (
-  <div className="flex space-x-2">
+  <div className="flex gap-2 w-full justify-around">
     {isEditing ? (
-      <Button
-        onClick={onSave}
-        className="bg-green-500 text-white py-2 rounded hover:bg-green-600"
-      >
-        저장
-      </Button>
+      <>
+        <Button
+          onClick={onSave}
+          className="bg-green-500 text-white py-2 rounded hover:bg-green-600"
+        >
+          저장
+        </Button>
+
+        <Button
+          onClick={onCancel}
+          className="bg-green-500 text-white py-2 rounded hover:bg-green-600"
+        >
+          취소
+        </Button>
+      </>
     ) : (
       <>
         <Button
@@ -113,17 +125,19 @@ const QRCard = ({
   onUrlChange,
   onEdit,
   onSave,
+  onCancel,
   onDownload,
   onDelete,
 }: QRCardProps) => (
   <div className="border-2 rounded-md p-6">
-    <div className="flex items-start">
+    <div className="flex flex-col sm:flex-row items-start">
       <QRCode
         id={`qr-code-${qrCode.id}`}
         value={qrCode.qrUrl}
         className="mb-2"
+        size={244}
       />
-      <div className="ml-4 flex-1">
+      <div className="sm:ml-4 w-full flex-1">
         <EditableField
           label="이름"
           value={isEditing ? newName : qrCode.name}
@@ -139,6 +153,7 @@ const QRCard = ({
         <ActionButtons
           isEditing={isEditing}
           onSave={onSave}
+          onCancel={onCancel}
           onEdit={onEdit}
           onDownload={onDownload}
           onDelete={onDelete}
@@ -231,6 +246,11 @@ export default function ModifyQR() {
     updateQRMutation.mutate({ newName, newUrl, selectedQRId: selectedQR.id });
   };
 
+  const handleSaveCancel = () => {
+    if (!selectedQR) return;
+    qrEditSuccess();
+  };
+
   const handleDelete = async (qrCode: QRCodeData) => {
     if (!confirm("정말 삭제하시겠습니까?")) return;
     deleteQRMutation.mutate(qrCode.id);
@@ -243,10 +263,7 @@ export default function ModifyQR() {
   // Render
   return (
     <div className="h-full">
-      <div className="text-3xl w-full border-2 p-2 bg-blue-500 text-white">
-        QR 목록
-      </div>
-      <div className="grid grid-cols-3 gap-4 justify-around mt-4 p-10">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 justify-around mt-4 p-10">
         {!Array.isArray(qrCodes) ? null : qrCodes.length === 0 ? (
           <p>생성된 QR 코드가 없습니다.</p>
         ) : (
@@ -261,6 +278,7 @@ export default function ModifyQR() {
               onUrlChange={setNewUrl}
               onEdit={() => handleEdit(qrCode)}
               onSave={handleSaveChanges}
+              onCancel={handleSaveCancel}
               onDownload={() => downloadQRCode(qrCode)}
               onDelete={() => handleDelete(qrCode)}
             />

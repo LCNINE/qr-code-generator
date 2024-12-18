@@ -6,18 +6,10 @@ import { createClient } from "@/utils/supabase/server";
 export default async function MyPage() {
 
   const supabase = createClient()
-  // transactionQueryOptions에 startDate와 endDate 전달
+  
   const { queryKey, queryFn } = qrQueryOptions(supabase).qrCodes();
 
-  const query = await getDehydratedQuery({
-    queryKey,
-    queryFn: async () => {
-      const data = await queryFn();
-      return {
-        data,
-      };
-    },
-  });
+  const query = await getDehydratedQuery({ queryKey, queryFn })
 
   return (
     <Hydrate state={{ queries: [query] }}>

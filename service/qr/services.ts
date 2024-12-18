@@ -36,7 +36,6 @@ class QRService extends Service {
       throw error;
     } else {
       const qrUrl = `ald.my/${insertData.id}`;
-      alert("QR 코드가 저장되었습니다.");
       return qrUrl;
     }
   }
